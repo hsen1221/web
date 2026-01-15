@@ -11,6 +11,6 @@ namespace DataAccess.Entities
     public class AppUser : IdentityUser
     {
         // We can add custom fields here later if we want, like:
-        // public string FullName { get; set; }
+        public string FullName { get; set; } = "";
     }
 }
