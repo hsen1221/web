@@ -1,0 +1,40 @@
+﻿@model IEnumerable<DataAccess.Entities.Line>
+
+@{
+    ViewData["Title"] = "Lines";
+}
+
+<h1>Lines</h1>
+
+@if (!Model.Any())
+{
+    <p>No lines found. Make sure you've applied migrations and seeded/imported data.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>DriverId</th>
+                <th>SupervisorId</th>
+                <th>Bus Capacity</th>
+                <th>Stops</th>
+                <th>Passengers</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var line in Model)
+        {
+            <tr>
+                <td>@line.Title</td>
+                <td>@line.DriverId</td>
+                <td>@line.SupervisorId</td>
+                <td>@(line.Bus?.Capacity ?? 0)</td>
+                <td>@(line.Stops?.Count ?? 0)</td>
+                <td>@(line.LinePassengers?.Count ?? 0)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
