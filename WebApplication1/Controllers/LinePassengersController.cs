@@ -95,6 +95,7 @@ namespace WebApplication1.Controllers
 
                 _context.Add(linePassenger);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "You have successfully joined the line!"; // <--- Add this
                 return RedirectToAction(nameof(MyLines));
             }
 
@@ -147,6 +148,7 @@ namespace WebApplication1.Controllers
                         throw;
                     }
                 }
+                TempData["SuccessMessage"] = "Passenger details updated."; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
@@ -184,6 +186,7 @@ namespace WebApplication1.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Passenger removed from line successfully."; // <--- Add this
             return RedirectToAction(nameof(Index));
         }
 

@@ -73,7 +73,7 @@ namespace WebApplication1.Controllers
             // 1. THE CHECK: Does this line already have a bus?
             if (_context.Buses.Any(b => b.LineId == bus.LineId))
             {
-                ModelState.AddModelError("LineId", "This line already has a bus assigned. Please select a different line.");
+                ModelState.AddModelError("LineId", "This line already ha    s a bus assigned. Please select a different line.");
             }
 
             if (ModelState.IsValid)
@@ -81,6 +81,7 @@ namespace WebApplication1.Controllers
                 bus.BusId = Guid.NewGuid();
                 _context.Add(bus);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Bus added successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
 
@@ -145,6 +146,7 @@ namespace WebApplication1.Controllers
                         throw;
                     }
                 }
+                TempData["SuccessMessage"] = "Bus updated successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Id", bus.LineId);
@@ -182,6 +184,7 @@ namespace WebApplication1.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Bus deleted successfully!"; // <--- Add this
             return RedirectToAction(nameof(Index));
         }
 

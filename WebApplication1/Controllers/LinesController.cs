@@ -74,6 +74,7 @@ namespace WebApplication1.Controllers
                 line.Id = Guid.NewGuid();
                 _context.Add(line);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Line created successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
             return View(line);
@@ -127,8 +128,10 @@ namespace WebApplication1.Controllers
                         throw;
                     }
                 }
+                TempData["SuccessMessage"] = "Line updated successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
+
             return View(line);
         }
 
@@ -167,6 +170,7 @@ namespace WebApplication1.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Line deleted successfully!"; // <--- Add this
             return RedirectToAction(nameof(Index));
         }
 

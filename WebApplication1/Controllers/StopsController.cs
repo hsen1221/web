@@ -66,6 +66,7 @@ namespace WebApplication1.Controllers
                 stop.StopId = Guid.NewGuid();
                 _context.Add(stop);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Bus stop added successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", stop.LineId);
@@ -119,6 +120,7 @@ namespace WebApplication1.Controllers
                         throw;
                     }
                 }
+                TempData["SuccessMessage"] = "Bus stop updated successfully!"; // <--- Add this
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", stop.LineId);
@@ -156,6 +158,7 @@ namespace WebApplication1.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Bus stop deleted successfully!"; // <--- Add this
             return RedirectToAction(nameof(Index));
         }
 
