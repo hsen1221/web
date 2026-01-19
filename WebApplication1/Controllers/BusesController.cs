@@ -11,12 +11,12 @@ using Microsoft.AspNetCore.Authorization; // Required namespace
 
 namespace WebApplication1.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class BusesController : Controller
     {
 
         private readonly AppDbContext _context;
-        // Restrict the entire controller to Admins
-        [Authorize(Roles = "Admin")]
+        
         public BusesController(AppDbContext context)
         {
             _context = context;
