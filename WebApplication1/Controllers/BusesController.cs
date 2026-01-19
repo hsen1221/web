@@ -7,13 +7,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataAccess;
 using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization; // Required namespace
 
 namespace WebApplication1.Controllers
 {
     public class BusesController : Controller
     {
-        private readonly AppDbContext _context;
 
+        private readonly AppDbContext _context;
+        // Restrict the entire controller to Admins
+        [Authorize(Roles = "Admin")]
         public BusesController(AppDbContext context)
         {
             _context = context;

@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataAccess;
 using DataAccess.Entities;
-
+using Microsoft.AspNetCore.Authorization;
 namespace WebApplication1.Controllers
 {
+    [Authorize] // Require login for everything in this controller
     public class LinesController : Controller
     {
         private readonly AppDbContext _context;
@@ -20,10 +21,13 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Lines
+        // Allow Admins AND Authenticated Users to see the list
+        [AllowAnonymous] // Or just [Authorize] if you want them logged in
         public async Task<IActionResult> Index()
         {
             return View(await _context.Lines.ToListAsync());
         }
+
 
         // GET: Lines/Details/5
         public async Task<IActionResult> Details(Guid? id)
@@ -44,6 +48,8 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Lines/Create
+        // Restrict Create/Edit/Delete to Admins only
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -67,6 +73,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Lines/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -118,6 +125,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Lines/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -156,6 +164,17 @@ namespace WebApplication1.Controllers
         private bool LineExists(Guid id)
         {
             return _context.Lines.Any(e => e.Id == id);
+        }
+        public async Task<IActionResult> MyAssignment()
+        {
+            // Get current logged-in user's ID
+            var userId = _userManager.GetUserId(User);
+
+            // Find the line where this user is the driver
+            var myLine = await _context.Lines
+                                       .FirstOrDefaultAsync(l => l.DriverId == userId);
+
+            return View(myLine);
         }
     }
 }

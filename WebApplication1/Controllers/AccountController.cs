@@ -43,6 +43,9 @@ namespace WebApplication1.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Assign the default role "User"
+                    // Note: Ensure the role "User" exists in the AspNetRoles table first!
+                    await _userManager.AddToRoleAsync(user, "AuthenticatedUser");
                     // Sign them in immediately
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
