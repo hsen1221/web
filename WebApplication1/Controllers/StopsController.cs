@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DataAccess;
 using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization; // <--- 1. Added Namespace
 
 namespace WebApplication1.Controllers
 {
+    // 2. Added Security Attribute: Only Admins can access this controller
+    [Authorize(Roles = "Admin")]
     public class StopsController : Controller
     {
         private readonly AppDbContext _context;
@@ -66,7 +69,7 @@ namespace WebApplication1.Controllers
                 stop.StopId = Guid.NewGuid();
                 _context.Add(stop);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Bus stop added successfully!"; // <--- Add this
+                TempData["SuccessMessage"] = "Bus stop added successfully!";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", stop.LineId);
@@ -120,7 +123,7 @@ namespace WebApplication1.Controllers
                         throw;
                     }
                 }
-                TempData["SuccessMessage"] = "Bus stop updated successfully!"; // <--- Add this
+                TempData["SuccessMessage"] = "Bus stop updated successfully!";
                 return RedirectToAction(nameof(Index));
             }
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", stop.LineId);
@@ -158,7 +161,7 @@ namespace WebApplication1.Controllers
             }
 
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Bus stop deleted successfully!"; // <--- Add this
+            TempData["SuccessMessage"] = "Bus stop deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 

@@ -63,7 +63,7 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize] // User must be logged in
-        public async Task<IActionResult> Create([Bind("LineId")] LinePassenger linePassenger)
+        public async Task<IActionResult> Create([Bind("LineId,FullName")] LinePassenger linePassenger)
         {
             // 1. Get the ID of the currently logged-in user
             // NOW THIS WORKS because _userManager is defined
@@ -86,12 +86,6 @@ namespace WebApplication1.Controllers
                 linePassenger.AppUserId = currentUserId;
                 linePassenger.IsActive = true;
                 linePassenger.RegisteredDate = DateTime.UtcNow;
-
-                // We often don't need "FullName" from the form if we can just grab it from the User account,
-                // but if your model requires it, you might need to fill it here or make it optional.
-                // For now, let's assume we copy it from the user account to satisfy the [Required] attribute:
-                var appUser = await _userManager.FindByIdAsync(currentUserId);
-                linePassenger.FullName = appUser?.FullName ?? "Unknown";
 
                 _context.Add(linePassenger);
                 await _context.SaveChangesAsync();
