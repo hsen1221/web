@@ -1,8 +1,9 @@
-﻿using DataAccess.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity; 
+using DataAccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using WebApplication1.Models;
+
 
 namespace WebApplication1.Controllers
 {
@@ -10,11 +11,16 @@ namespace WebApplication1.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public AccountController(
+             UserManager<AppUser> userManager,
+             SignInManager<AppUser> signInManager,
+             RoleManager<IdentityRole> roleManager) // <--- Add this parameter
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager; // <--- Assign it
         }
 
         // GET: Register
@@ -43,9 +49,16 @@ namespace WebApplication1.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Assign the default role "User"
-                    // Note: Ensure the role "User" exists in the AspNetRoles table first!
+                    // 1. Check if the role exists
+                    if (!await _roleManager.RoleExistsAsync("AuthenticatedUser"))
+                    {
+                        // 2. Create it if it doesn't
+                        await _roleManager.CreateAsync(new IdentityRole("AuthenticatedUser"));
+                    }
+
+                    // 3. Now it is safe to assign
                     await _userManager.AddToRoleAsync(user, "AuthenticatedUser");
+                    // Assign the default role "User"
                     // Sign them in immediately
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
