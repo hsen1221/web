@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Lines";
+    // Retrieve the dictionary of driver names sent from the Controller
+    var driverNames = ViewBag.DriverNames as Dictionary<string, string>;
 }
 
 <h1>Lines</h1>
@@ -16,25 +18,32 @@ else
         <thead>
             <tr>
                 <th>Title</th>
-                <th>DriverId</th>
-                <th>SupervisorId</th>
+                <th>Driver</th>
                 <th>Bus Capacity</th>
                 <th>Stops</th>
                 <th>Passengers</th>
             </tr>
         </thead>
         <tbody>
-        @foreach (var line in Model)
-        {
-            <tr>
-                <td>@line.Title</td>
-                <td>@line.DriverId</td>
-                <td>@line.SupervisorId</td>
-                <td>@(line.Bus?.Capacity ?? 0)</td>
-                <td>@(line.Stops?.Count ?? 0)</td>
-                <td>@(line.LinePassengers?.Count ?? 0)</td>
-            </tr>
-        }
+            @foreach (var line in Model)
+            {
+                <tr>
+                    <td>@line.Title</td>
+                    <td>
+                        @if (driverNames != null && line.DriverId != null && driverNames.ContainsKey(line.DriverId.ToString()))
+                        {
+                            @driverNames[line.DriverId.ToString()]
+                        }
+                        else
+                        {
+                            <span class="text-muted">Unassigned</span>
+                        }
+                    </td>
+                    <td>@(line.Bus?.Capacity ?? 0)</td>
+                    <td>@(line.Stops?.Count ?? 0)</td>
+                    <td>@(line.LinePassengers?.Count ?? 0)</td>
+                </tr>
+            }
         </tbody>
     </table>
 }

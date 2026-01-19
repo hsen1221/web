@@ -73,6 +73,7 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")] 
         public IActionResult Create()
         {
+            ViewData["DriverId"] = new SelectList(_context.Users, "Id", "Email");
             return View();
         }
 
@@ -109,6 +110,8 @@ namespace WebApplication1.Controllers
             {
                 return NotFound();
             }
+            // 👇 NEW: Load users into a dropdown list, selecting the current driver
+            ViewData["DriverId"] = new SelectList(_context.Users, "Id", "Email", line.DriverId);
             return View(line);
         }
 

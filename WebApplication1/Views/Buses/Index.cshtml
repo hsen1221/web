@@ -2,40 +2,68 @@
 
 @{
     ViewData["Title"] = "Index";
+    // Retrieve the driver names dictionary sent from the Controller
+    var driverNames = ViewBag.DriverNames as Dictionary<string, string>;
 }
 
-<h1>Index</h1>
+<h1>Fleet Management</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New Bus</a>
 </p>
-<table class="table">
+
+<table class="table table-striped table-hover">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Capacity)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Line)
+                Assigned Line
             </th>
-            <th></th>
+            <th>
+                Responsible Driver
+            </th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Capacity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Line.Title)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.BusId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.BusId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.BusId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Capacity) Seats
+                </td>
+                <td>
+                    @if (item.Line != null)
+                    {
+                        <span class="fw-bold text-primary">@item.Line.Title</span>
+                    }
+                    else
+                    {
+                        <span class="text-warning fst-italic">Idle (Not Assigned)</span>
+                    }
+                </td>
+                <td>
+                    @if (item.Line != null && driverNames != null && driverNames.ContainsKey(item.Line.DriverId.ToString()))
+                    {
+                        <span><i class="bi bi-person-badge"></i> @driverNames[item.Line.DriverId.ToString()]</span>
+                    }
+                    else if (item.Line != null)
+                    {
+                        <span class="text-muted">No Driver Assigned</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.BusId" class="btn btn-sm btn-secondary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.BusId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.BusId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

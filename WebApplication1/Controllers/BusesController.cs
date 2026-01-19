@@ -23,12 +23,30 @@ namespace WebApplication1.Controllers
         }
 
         // GET: Buses
+        // GET: Buses
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Buses.Include(b => b.Line);
-            return View(await appDbContext.ToListAsync());
-        }
+            // 1. Get Buses and include the Line info
+            var buses = await _context.Buses.Include(b => b.Line).ToListAsync();
 
+            // 2. Collect all Driver IDs from the associated Lines
+            // (We look at the bus -> check its line -> check the driver ID on that line)
+            var driverIds = buses
+                .Where(b => b.Line != null)
+                .Select(b => b.Line.DriverId.ToString())
+                .Distinct()
+                .ToList();
+
+            // 3. Fetch User Names for those IDs
+            var drivers = await _context.Users
+                .Where(u => driverIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.FullName ?? u.Email);
+
+            // 4. Pass data to View
+            ViewBag.DriverNames = drivers;
+
+            return View(buses);
+        }
         // GET: Buses/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
