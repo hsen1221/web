@@ -24,9 +24,8 @@
             <th>
                 Driver
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SupervisorId)
-            </th>
+           
+
             <th>Actions</th>
         </tr>
     </thead>
@@ -47,9 +46,7 @@
                         <span class="text-muted fst-italic">Unassigned / Unknown</span>
                     }
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SupervisorId)
-                </td>
+               
                 <td>
                     @if (User.IsInRole("Admin"))
                     {

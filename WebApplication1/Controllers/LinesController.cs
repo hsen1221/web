@@ -83,7 +83,7 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Title,DriverId,SupervisorId")] Line line)
+        public async Task<IActionResult> Create([Bind("Id,Title,DriverId")] Line line)
         {
             if (ModelState.IsValid)
             {
@@ -121,7 +121,7 @@ namespace WebApplication1.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,DriverId,SupervisorId")] Line line)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,DriverId")] Line line)
         {
             if (id != line.Id)
             {

@@ -18,8 +18,7 @@ namespace DataAccess.Entities
 
         // references to people (guids) — adapt types if you have User entities
         public Guid? DriverId { get; set; }
-        public Guid? SupervisorId { get; set; }
-
+   
         // One-to-one: navigation to Bus
         public Bus? Bus { get; set; }
 
