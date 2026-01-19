@@ -1,0 +1,59 @@
+﻿@model DataAccess.Entities.Line
+
+@{
+    ViewData["Title"] = "My Bus Assignment";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-bus-front"></i> My Assignment</h3>
+                </div>
+                <div class="card-body text-center">
+                    @if (Model != null)
+                    {
+                        <h4 class="text-success fw-bold">You are the driver for:</h4>
+                        <h1 class="display-4 my-4">@Model.Title</h1>
+
+                        <div class="row text-start mt-4">
+                            <div class="col-md-6 offset-md-3">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <strong>Line ID:</strong> @Model.Id
+                                    </li>
+                                    @if (Model.Bus != null)
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>Bus Capacity:</strong> @Model.Bus.Capacity
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="list-group-item text-danger">
+                                            <i class="bi bi-exclamation-circle"></i> No Bus Vehicle Assigned yet.
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        // 👇 THIS FULFILLS THE "NOT REGISTERED" REQUIREMENT
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Not Registered</h4>
+                            <p class="mb-0">You are not currently registered to a bus line as a driver.</p>
+                            <hr>
+                            <p class="mb-0">Please contact the administrator to get your assignment.</p>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer text-muted">
+                    <a asp-action="Index" class="btn btn-secondary">Back to All Lines</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

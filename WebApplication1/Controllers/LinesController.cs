@@ -26,10 +26,25 @@ namespace WebApplication1.Controllers
         }
         // GET: Lines
         // Allow Admins AND Authenticated Users to see the list
-        [AllowAnonymous] // Or just [Authorize] if you want them logged in
+        // GET: Lines
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Lines.ToListAsync());
+            var lines = await _context.Lines.Include(l => l.Bus).ToListAsync();
+
+            // 👇 NEW LOGIC: Fetch Driver Names manually (since we don't have a direct navigation property yet)
+            // Convert all Driver IDs to strings to match AspNetUsers
+            var driverIds = lines.Select(l => l.DriverId.ToString()).ToList();
+
+            // Find users whose IDs match
+            var drivers = await _context.Users
+                .Where(u => driverIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.FullName ?? u.Email);
+
+            // Pass this dictionary to the View
+            ViewBag.DriverNames = drivers;
+
+            return View(lines);
         }
 
 

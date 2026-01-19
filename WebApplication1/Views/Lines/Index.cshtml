@@ -1,47 +1,64 @@
 ﻿@model IEnumerable<DataAccess.Entities.Line>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "All Bus Lines";
+    // Get the dictionary we sent from the controller
+    var driverNames = ViewBag.DriverNames as Dictionary<string, string>;
 }
 
-<h1>Index</h1>
+<h1>Bus Lines</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
+}
+
+<table class="table table-striped">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DriverId)
+                Driver
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.SupervisorId)
             </th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DriverId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SupervisorId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @if (driverNames != null && driverNames.ContainsKey(item.DriverId.ToString()))
+                    {
+                        <span class="fw-bold">@driverNames[item.DriverId.ToString()]</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Unassigned / Unknown</span>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SupervisorId)
+                </td>
+                <td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

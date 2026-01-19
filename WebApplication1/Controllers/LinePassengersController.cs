@@ -99,6 +99,7 @@ namespace WebApplication1.Controllers
             return View(linePassenger);
         }
         // GET: LinePassengers/Edit/5
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -118,6 +119,8 @@ namespace WebApplication1.Controllers
         // POST: LinePassengers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS
+
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,FullName,LineId,RegisteredDate,IsActive,AppUserId")] LinePassenger linePassenger)
         {
             if (id != linePassenger.Id)
@@ -151,6 +154,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: LinePassengers/Delete/5
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -172,6 +176,7 @@ namespace WebApplication1.Controllers
         // POST: LinePassengers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var linePassenger = await _context.LinePassengers.FindAsync(id);
