@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.AspNetCore.Identity; // Add this namespace
 namespace DataAccess.Entities
 {
     public class LinePassenger
@@ -22,6 +22,9 @@ namespace DataAccess.Entities
         public DateTime RegisteredDate { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
 
+        // Link to the User Account
+        public string AppUserId { get; set; } // Foreign Key to AspNetUsers table
+        public AppUser? AppUser { get; set; } // Navigation property
         public Line? Line { get; set; }
 
 

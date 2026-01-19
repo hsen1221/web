@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DataAccess;
+using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity; // Required for UserManager
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataAccess;
-using DataAccess.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebApplication1.Controllers
 {
@@ -14,9 +16,14 @@ namespace WebApplication1.Controllers
     {
         private readonly AppDbContext _context;
 
-        public LinePassengersController(AppDbContext context)
+        // 1. ADD THIS FIELD 👇
+        private readonly UserManager<AppUser> _userManager;
+
+        // 2. UPDATE CONSTRUCTOR TO INJECT USERMANAGER 👇
+        public LinePassengersController(AppDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            _userManager = userManager; // 3. ASSIGN IT HERE 👇
         }
 
         // GET: LinePassengers
@@ -53,26 +60,48 @@ namespace WebApplication1.Controllers
         }
 
         // POST: LinePassengers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        // ADD "FullName" to this list 👇
-        public async Task<IActionResult> Create([Bind("Id,FullName,LineId,RegisteredDate,IsActive")] LinePassenger linePassenger)
+        [Authorize] // User must be logged in
+        public async Task<IActionResult> Create([Bind("LineId")] LinePassenger linePassenger)
         {
-            if (ModelState.IsValid)
+            // 1. Get the ID of the currently logged-in user
+            // NOW THIS WORKS because _userManager is defined
+            var currentUserId = _userManager.GetUserId(User);
+
+            // 2. Prevent duplicate sign-ups
+            bool alreadyJoined = _context.LinePassengers.Any(p =>
+                p.LineId == linePassenger.LineId &&
+                p.AppUserId == currentUserId);
+
+            if (alreadyJoined)
             {
-                linePassenger.Id = Guid.NewGuid();
-                _context.Add(linePassenger);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "You have already joined this line.");
             }
 
-            // Optional: Fix the dropdown bug here too (change "Id" to "Title")
-            ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
+            if (ModelState.IsValid)
+            {
+                // 3. Set the relationship
+                linePassenger.Id = Guid.NewGuid();
+                linePassenger.AppUserId = currentUserId;
+                linePassenger.IsActive = true;
+                linePassenger.RegisteredDate = DateTime.UtcNow;
 
+                // We often don't need "FullName" from the form if we can just grab it from the User account,
+                // but if your model requires it, you might need to fill it here or make it optional.
+                // For now, let's assume we copy it from the user account to satisfy the [Required] attribute:
+                var appUser = await _userManager.FindByIdAsync(currentUserId);
+                linePassenger.FullName = appUser?.FullName ?? "Unknown";
+
+                _context.Add(linePassenger);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(MyLines));
+            }
+
+            ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
             return View(linePassenger);
         }
+
         // GET: LinePassengers/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
@@ -91,8 +120,6 @@ namespace WebApplication1.Controllers
         }
 
         // POST: LinePassengers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,FullName,LineId,RegisteredDate,IsActive")] LinePassenger linePassenger)
@@ -122,7 +149,7 @@ namespace WebApplication1.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title    ", linePassenger.LineId);
+            ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
             return View(linePassenger);
         }
 
@@ -163,6 +190,19 @@ namespace WebApplication1.Controllers
         private bool LinePassengerExists(Guid id)
         {
             return _context.LinePassengers.Any(e => e.Id == id);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> MyLines()
+        {
+            var currentUserId = _userManager.GetUserId(User);
+
+            var myTrips = await _context.LinePassengers
+                .Include(lp => lp.Line)
+                .Where(lp => lp.AppUserId == currentUserId)
+                .ToListAsync();
+
+            return View(myTrips);
         }
     }
 }
