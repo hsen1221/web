@@ -16,6 +16,14 @@ builder.Services.AddIdentity<AppUser, Microsoft.AspNetCore.Identity.IdentityRole
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    // If a user tries to access a page they don't have permission for, send them here:
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    // Also ensures they go to login if not authenticated at all
+    options.LoginPath = "/Account/Login";
+});
+
 
 var app = builder.Build();
 

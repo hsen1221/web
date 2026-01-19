@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity; 
-using DataAccess.Entities;
+﻿using DataAccess.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using WebApplication1.Models;
@@ -12,6 +13,13 @@ namespace WebApplication1.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+
+        [HttpGet]
+        [AllowAnonymous] // Important: We don't want to block them from seeing the error page!
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
         public AccountController(
              UserManager<AppUser> userManager,

@@ -118,7 +118,7 @@ namespace WebApplication1.Controllers
         // POST: LinePassengers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,FullName,LineId,RegisteredDate,IsActive")] LinePassenger linePassenger)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,FullName,LineId,RegisteredDate,IsActive,AppUserId")] LinePassenger linePassenger)
         {
             if (id != linePassenger.Id)
             {
