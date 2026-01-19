@@ -53,50 +53,51 @@ namespace WebApplication1.Controllers
         }
 
         // GET: LinePassengers/Create
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS (Was just [Authorize])
         public IActionResult Create()
         {
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title");
+            // We need a list of users so the Admin can pick one!
+            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Email");
             return View();
         }
-
         // POST: LinePassengers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize] // User must be logged in
-        public async Task<IActionResult> Create([Bind("LineId,FullName")] LinePassenger linePassenger)
+        [Authorize(Roles = "Admin")] // <--- CHANGE THIS
+                                     // Add "AppUserId" to the bind list so we can receive the selected user
+        public async Task<IActionResult> Create([Bind("LineId,FullName,AppUserId")] LinePassenger linePassenger)
         {
-            // 1. Get the ID of the currently logged-in user
-            // NOW THIS WORKS because _userManager is defined
-            var currentUserId = _userManager.GetUserId(User);
+            // REMOVED: var currentUserId = _userManager.GetUserId(User); 
+            // We now use the AppUserId sent from the form (selected by Admin)
 
-            // 2. Prevent duplicate sign-ups
+            // Check if the selected user is already in the line
             bool alreadyJoined = _context.LinePassengers.Any(p =>
                 p.LineId == linePassenger.LineId &&
-                p.AppUserId == currentUserId);
+                p.AppUserId == linePassenger.AppUserId); // <--- Use the selected ID
 
             if (alreadyJoined)
             {
-                ModelState.AddModelError("", "You have already joined this line.");
+                ModelState.AddModelError("", "This user is already on this line.");
             }
 
             if (ModelState.IsValid)
             {
-                // 3. Set the relationship
                 linePassenger.Id = Guid.NewGuid();
-                linePassenger.AppUserId = currentUserId;
+                // linePassenger.AppUserId is already set from the form!
                 linePassenger.IsActive = true;
                 linePassenger.RegisteredDate = DateTime.UtcNow;
 
                 _context.Add(linePassenger);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "You have successfully joined the line!"; // <--- Add this
-                return RedirectToAction(nameof(MyLines));
+                TempData["SuccessMessage"] = "Passenger added successfully!";
+                return RedirectToAction(nameof(Index)); // Go back to global list (Admin view)
             }
 
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
+            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Email", linePassenger.AppUserId); // Reload user list if error
             return View(linePassenger);
         }
-
         // GET: LinePassengers/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {

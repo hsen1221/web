@@ -22,6 +22,12 @@
                 <select asp-for="LineId" class ="form-control" asp-items="ViewBag.LineId"></select>
             </div>
             <div class="form-group">
+                <label asp-for="AppUserId" class="control-label">Select Passenger</label>
+                <select asp-for="AppUserId" class="form-control" asp-items="ViewBag.AppUserId">
+                    <option value="">-- Select a User --</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label asp-for="RegisteredDate" class="control-label"></label>
                 <input asp-for="RegisteredDate" class="form-control" />
                 <span asp-validation-for="RegisteredDate" class="text-danger"></span>
