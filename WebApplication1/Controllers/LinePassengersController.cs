@@ -24,6 +24,7 @@ namespace WebApplication1.Controllers
         }
 
         // GET: LinePassengers/MyLines
+        // Passengers can still SEE their own trips here
         [Authorize]
         public async Task<IActionResult> MyLines()
         {
@@ -37,7 +38,8 @@ namespace WebApplication1.Controllers
             return View(myTrips);
         }
 
-        // GET: LinePassengers
+        // GET: LinePassengers (Global List - Optional: Restrict to Admin if you want)
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var appDbContext = _context.LinePassengers.Include(l => l.Line);
@@ -47,27 +49,26 @@ namespace WebApplication1.Controllers
         // GET: LinePassengers/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var linePassenger = await _context.LinePassengers
                 .Include(l => l.Line)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (linePassenger == null)
-            {
-                return NotFound();
-            }
+            if (linePassenger == null) return NotFound();
 
             return View(linePassenger);
         }
+
+        // ============================================================
+        // ADMIN ONLY SECTION: Adding/Editing Passengers
+        // ============================================================
 
         // GET: LinePassengers/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title");
+            // Load Users so Admin can pick one
             ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Email");
             return View();
         }
@@ -78,7 +79,7 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("LineId,FullName,AppUserId")] LinePassenger linePassenger)
         {
-            // Check if the selected user is already in the line
+            // Check if this specific user is already on the line
             bool alreadyJoined = _context.LinePassengers.Any(p =>
                 p.LineId == linePassenger.LineId &&
                 p.AppUserId == linePassenger.AppUserId);
@@ -109,17 +110,13 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var linePassenger = await _context.LinePassengers.FindAsync(id);
-            if (linePassenger == null)
-            {
-                return NotFound();
-            }
+            if (linePassenger == null) return NotFound();
+
             ViewData["LineId"] = new SelectList(_context.Lines, "Id", "Title", linePassenger.LineId);
+            // Don't forget to load the user list for Edit too, or just keep the hidden field approach
             return View(linePassenger);
         }
 
@@ -129,10 +126,7 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(Guid id, [Bind("Id,FullName,LineId,RegisteredDate,IsActive,AppUserId")] LinePassenger linePassenger)
         {
-            if (id != linePassenger.Id)
-            {
-                return NotFound();
-            }
+            if (id != linePassenger.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
@@ -143,14 +137,8 @@ namespace WebApplication1.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!LinePassengerExists(linePassenger.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!LinePassengerExists(linePassenger.Id)) return NotFound();
+                    else throw;
                 }
                 TempData["SuccessMessage"] = "Passenger details updated.";
                 return RedirectToAction(nameof(Index));
@@ -163,18 +151,12 @@ namespace WebApplication1.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var linePassenger = await _context.LinePassengers
                 .Include(l => l.Line)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (linePassenger == null)
-            {
-                return NotFound();
-            }
+            if (linePassenger == null) return NotFound();
 
             return View(linePassenger);
         }
